@@ -89,8 +89,7 @@ public class GraphicsDisplay extends JPanel {
         if (graphicsData == null || graphicsData.length == 0) return;
         // Шаг 3 - Определить минимальное и максимальное значения для координат X и Y
         // Это необходимо для определения области пространства, подлежащей отображению
-        // Её верхний левый угол это (minX, maxY) - правый нижний это
-        (maxX, minY)
+        // Её верхний левый угол это (minX, maxY) - правый нижний это (maxX, minY)
         minX = graphicsData[0][0];
         maxX = graphicsData[graphicsData.length - 1][0];
         minY = graphicsData[0][1];
