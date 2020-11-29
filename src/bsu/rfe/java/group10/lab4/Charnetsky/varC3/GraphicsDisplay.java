@@ -207,12 +207,20 @@ public class GraphicsDisplay extends JPanel {
             и угла прямоугольника, в который он вписан */
             // Центр - в точке (x,y)
             Point2D.Double center = xyToPoint(point[0], point[1]);
-            // Угол прямоугольника - отстоит на расстоянии (3,3)
-            Point2D.Double corner = shiftPoint(center, 3, 3);
+            // Угол прямоугольника - отстоит на расстоянии (5.5,5.5)
+            //согласно заданию в котором маркер представляет фигуру 11х11
+            Point2D.Double corner = shiftPoint(center, 5.5, 5.5);
             // Задать эллипс по центру и диагонали
+            GeneralPath marker1 = new GeneralPath();
             marker.setFrameFromCenter(center, corner);
+            marker1.moveTo(center.getX() - 5.5,center.getY());
+            marker1.lineTo(center.getX() + 5.5,center.getY());
+            marker1.moveTo(center.getX(), center.getY() - 5.5);
+            marker1.lineTo(center.getX(), center.getY() + 5.5);
             canvas.draw(marker); // Начертить контур маркера
-            canvas.fill(marker); // Залить внутреннюю область маркера
+            canvas.draw(marker1);//Начертить недостающие линии благодаря GenerelPath
+            //не будем заливать элипс
+            //canvas.fill(marker); // Залить внутреннюю область маркера
         }
     }
 
