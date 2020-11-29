@@ -194,14 +194,22 @@ public class GraphicsDisplay extends JPanel {
     protected void paintMarkers(Graphics2D canvas) {
         // Шаг 1 - Установить специальное перо для черчения контуров маркеров
         canvas.setStroke(markerStroke);
-        // Выбрать красный цвета для контуров маркеров
-        canvas.setColor(Color.RED);
-        // Выбрать красный цвет для закрашивания маркеров внутри
-        canvas.setPaint(Color.RED);
         // Шаг 2 - Организовать цикл по всем точкам графика
         for (Double[] point : graphicsData) {
             // Инициализировать эллипс как объект для представления маркера
             Ellipse2D.Double marker = new Ellipse2D.Double();
+
+            double buffer = Math.abs(point[1]);
+            double sum = 0.0;
+            while(buffer >= 1){
+                sum += buffer % 10;
+                buffer /= 10;
+            }
+            // Выбрать красный цвета для контуров маркеров
+            if(sum > 10.0)
+                canvas.setColor(Color.RED);
+            else
+                canvas.setColor(Color.BLUE);
             /* Эллипс будет задаваться посредством указания координат
             его центра
             и угла прямоугольника, в который он вписан */
