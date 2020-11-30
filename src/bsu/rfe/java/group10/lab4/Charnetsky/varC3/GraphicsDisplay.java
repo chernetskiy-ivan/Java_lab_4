@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 public class GraphicsDisplay extends JPanel {
     // Список координат точек для построения графика
     private Double[][] graphicsData;
+    //Масиив для хранения данных второго графика
+    private Double[][] graphicsData2;
     // Флаговые переменные, задающие правила отображения графика
     private boolean showAxis = true;
     private boolean showMarkers = true;
@@ -33,6 +35,8 @@ public class GraphicsDisplay extends JPanel {
     private BasicStroke graphicsStroke;
     private BasicStroke axisStroke;
     private BasicStroke markerStroke;
+    //И для втогоро графика
+    private BasicStroke graphicsStroke2;
     // Различные шрифты отображения надписей
     private Font axisFont;
 
@@ -54,6 +58,13 @@ public class GraphicsDisplay extends JPanel {
                 BasicStroke.JOIN_MITER, 10.0f, null, 0.0f);
         // Шрифт для подписей осей координат
         axisFont = new Font("Serif", Font.BOLD, 36);
+
+        //Установки для отображения второго графика
+
+        graphicsStroke2 = new BasicStroke(3.0f,BasicStroke.CAP_BUTT,
+                BasicStroke.CAP_ROUND, 10.0f, null, 0.0f);
+
+        graphicsData2 = new Double[][]{};
     }
 
     // Данный метод вызывается из обработчика элемента меню "Открыть файл с графиком"
@@ -65,6 +76,13 @@ public class GraphicsDisplay extends JPanel {
         // Запросить перерисовку компонента, т.е. неявно вызвать paintComponent()
         repaint();
     }
+
+    public void addNewAndRepaint(Double[][] Data)
+    {
+        this.graphicsData2 = Data;
+        repaint();
+    }
+
 
     // Методы-модификаторы для изменения параметров отображения графика
     // Изменение любого параметра приводит к перерисовке области
@@ -101,6 +119,15 @@ public class GraphicsDisplay extends JPanel {
             }
             if (graphicsData[i][1] > maxY) {
                 maxY = graphicsData[i][1];
+            }
+        }
+        //проверка по двум массивам для уточнения масштаба
+        for (int i = 1; i < graphicsData2.length; i++) {
+            if (graphicsData2[i][1] < minY) {
+                minY = graphicsData2[i][1];
+            }
+            if (graphicsData2[i][1] > maxY) {
+                maxY = graphicsData2[i][1];
             }
         }
         /* Шаг 4 - Определить (исходя из размеров окна) масштабы по осям X
@@ -188,6 +215,27 @@ public class GraphicsDisplay extends JPanel {
         }
         // Отобразить график
         canvas.draw(graphics);
+
+        //для второго графика
+        canvas.setStroke(graphicsStroke2);
+        canvas.setColor(Color.YELLOW);
+
+        GeneralPath graphics2 = new GeneralPath();
+        for (int i = 0; i < graphicsData2.length; i++) {
+            // Преобразовать значения (x,y) в точку на экране point
+            Point2D.Double point2 = xyToPoint(graphicsData2[i][0],
+                    graphicsData2[i][1]);
+            if (i > 0) {
+                // Не первая итерация цикла - вести линию в точку point
+                graphics2.lineTo(point2.getX(), point2.getY());
+            } else {
+                // Первая итерация цикла - установить начало пути в точку point
+                graphics2.moveTo(point2.getX(), point2.getY());
+            }
+        }
+        // Отобразить второй график
+        canvas.draw(graphics2);
+
     }
 
     // Отображение маркеров точек, по которым рисовался график
@@ -229,6 +277,35 @@ public class GraphicsDisplay extends JPanel {
             canvas.draw(marker1);//Начертить недостающие линии благодаря GenerelPath
             //не будем заливать элипс
             //canvas.fill(marker); // Залить внутреннюю область маркера
+        }
+
+        for (Double[] point : graphicsData2) {
+            // Инициализировать эллипс как объект для представления маркера
+            Ellipse2D.Double marker = new Ellipse2D.Double();
+
+            double buffer = Math.abs(point[1]);
+            double sum = 0.0;
+            while(buffer >= 1){
+                sum += buffer % 10;
+                buffer /= 10;
+            }
+
+            if(sum > 10.0)
+                canvas.setColor(Color.RED);
+            else
+                canvas.setColor(Color.BLUE);
+
+            Point2D.Double center = xyToPoint(point[0], point[1]);
+            Point2D.Double corner = shiftPoint(center, 5.5, 5.5);
+            // Задать эллипс по центру и диагонали
+            GeneralPath marker1 = new GeneralPath();
+            marker.setFrameFromCenter(center, corner);
+            marker1.moveTo(center.getX() - 5.5,center.getY());
+            marker1.lineTo(center.getX() + 5.5,center.getY());
+            marker1.moveTo(center.getX(), center.getY() - 5.5);
+            marker1.lineTo(center.getX(), center.getY() + 5.5);
+            canvas.draw(marker);
+            canvas.draw(marker1);
         }
     }
 

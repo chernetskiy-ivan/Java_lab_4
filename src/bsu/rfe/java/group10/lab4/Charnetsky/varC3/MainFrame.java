@@ -8,14 +8,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JFileChooser;
-import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JOptionPane;
+import javax.swing.*;
 import javax.swing.event.MenuEvent;
 import javax.swing.event.MenuListener;
 
@@ -26,6 +19,8 @@ public class MainFrame extends JFrame {
     private static final int HEIGHT = 600;
     // Объект диалогового окна для выбора файлов
     private JFileChooser fileChooser = null;
+    //Пункт добавление второго графика
+    private JMenuItem addSecondGraphicsMenuItem;
     // Пункты меню
     private JCheckBoxMenuItem showAxisMenuItem;
     private JCheckBoxMenuItem showMarkersMenuItem;
@@ -58,15 +53,30 @@ public class MainFrame extends JFrame {
                 }
                 if (fileChooser.showOpenDialog(MainFrame.this) ==
                         JFileChooser.APPROVE_OPTION)
-                    openGraphics(fileChooser.getSelectedFile());
+                    openGraphics(fileChooser.getSelectedFile(), "Открыть файл с графиком");
             }
         };
 
         // Добавить соответствующий элемент меню
         fileMenu.add(openGraphicsAction);
+
         // Создать пункт меню "График"
         JMenu graphicsMenu = new JMenu("График");
         menuBar.add(graphicsMenu);
+        //Обработка действия добавления второго графика
+        Action openGraphics2Action = new AbstractAction("Добавить второй график"){
+            public void actionPerformed(ActionEvent event){
+                if(fileChooser == null){
+                    fileChooser = new JFileChooser();
+                    fileChooser.setCurrentDirectory(new File("."));
+                }
+                if(fileChooser.showOpenDialog(MainFrame.this) == JFileChooser.APPROVE_OPTION)
+                    openGraphics(fileChooser.getSelectedFile(), "Добавить второй график");
+            }
+        };
+        addSecondGraphicsMenuItem = graphicsMenu.add(openGraphics2Action);
+        addSecondGraphicsMenuItem.setEnabled(true);
+
         // Создать действие для реакции на активацию элемента "Показывать оси координат"
         Action showAxisAction = new AbstractAction("Показывать оси координат") {
             public void actionPerformed(ActionEvent event) {
@@ -101,7 +111,7 @@ public class MainFrame extends JFrame {
     }
 
     // Считывание данных графика из существующего файла
-    protected void openGraphics(File selectedFile) {
+    protected void openGraphics(File selectedFile, String Flag) {
         try {
             // Шаг 1 - Открыть поток чтения данных, связанный с входным файловым потоком
             DataInputStream in = new DataInputStream(new
@@ -126,11 +136,23 @@ public class MainFrame extends JFrame {
                 graphicsData[i++] = new Double[] {x, y};
             }
             // Шаг 4 - Проверка, имеется ли в списке в результате чтения хотя бы одна пара координат
-            if (graphicsData!=null && graphicsData.length>0) {
-                // Да - установить флаг загруженности данных
-                fileLoaded = true;
-                // Вызывать метод отображения графика
-                display.showGraphics(graphicsData);
+            //Проверяю какой график надо отрисовать
+            if(Flag == "Открыть файл с графиком") {
+                if (graphicsData != null && graphicsData.length > 0) {
+                    // Да - установить флаг загруженности данных
+                    fileLoaded = true;
+                    // Вызывать метод отображения графика
+                    display.showGraphics(graphicsData);
+                }
+            }
+            if(Flag == "Добавить второй график"){
+                if (graphicsData != null && graphicsData.length > 0) {
+                    // Да - установить флаг загруженности данных
+                    fileLoaded = true;
+                    // Вызывать метод отображения графика
+                    display.addNewAndRepaint(graphicsData);
+                    addSecondGraphicsMenuItem.setEnabled(false);
+                }
             }
             // Шаг 5 - Закрыть входной поток
             in.close();
