@@ -1,19 +1,10 @@
 package bsu.rfe.java.group10.lab4.Charnetsky.varC3;
 
-import java.awt.BasicStroke;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Paint;
-import java.awt.Stroke;
+import java.awt.*;
 import java.awt.font.FontRenderContext;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Line2D;
-import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
+import java.awt.geom.*;
 import javax.swing.JPanel;
+import java.awt.geom.AffineTransform;
 
 @SuppressWarnings("serials")
 public class GraphicsDisplay extends JPanel {
@@ -24,6 +15,7 @@ public class GraphicsDisplay extends JPanel {
     // Флаговые переменные, задающие правила отображения графика
     private boolean showAxis = true;
     private boolean showMarkers = true;
+    private boolean wantRotate = false;
     // Границы диапазона пространства, подлежащего отображению
     private double minX;
     private double maxX;
@@ -80,6 +72,11 @@ public class GraphicsDisplay extends JPanel {
     public void addNewAndRepaint(Double[][] Data)
     {
         this.graphicsData2 = Data;
+        repaint();
+    }
+
+    public void setWantRotate(boolean rotate){
+        this.wantRotate = rotate;
         repaint();
     }
 
@@ -176,6 +173,15 @@ public class GraphicsDisplay extends JPanel {
         // Шаг 8 - В нужном порядке вызвать методы отображения элементов графика
         // Порядок вызова методов имеет значение, т.к. предыдущий рисунок будет затираться последующим
         // Первыми (если нужно) отрисовываются оси координат.
+
+        if(wantRotate) {
+            //поворот на 90 градусов работает
+            AffineTransform rat = new AffineTransform();
+            rat.setToTranslation(200, 1150);//нужно подобрать норм координаты
+            rat.rotate(-Math.PI / 2);
+            canvas.transform(rat);
+        }
+        
         if (showAxis) paintAxis(canvas);
         // Затем отображается сам график
         paintGraphics(canvas);

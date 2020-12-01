@@ -24,6 +24,7 @@ public class MainFrame extends JFrame {
     // Пункты меню
     private JCheckBoxMenuItem showAxisMenuItem;
     private JCheckBoxMenuItem showMarkersMenuItem;
+    private JCheckBoxMenuItem rotateOnOrOff;
     // Компонент-отображатель графика
     private GraphicsDisplay display = new GraphicsDisplay();
     // Флаг, указывающий на загруженность данных графика
@@ -77,6 +78,15 @@ public class MainFrame extends JFrame {
         addSecondGraphicsMenuItem = graphicsMenu.add(openGraphics2Action);
         addSecondGraphicsMenuItem.setEnabled(true);
 
+        //Обработка вызова поворота графика
+        Action actionRotate = new AbstractAction("Повернуть на 90 градусов влево") {
+            public void actionPerformed(ActionEvent e) {
+                display.setWantRotate(rotateOnOrOff.isSelected());
+            }
+        };
+        rotateOnOrOff = new JCheckBoxMenuItem(actionRotate);
+        graphicsMenu.add(rotateOnOrOff);
+
         // Создать действие для реакции на активацию элемента "Показывать оси координат"
         Action showAxisAction = new AbstractAction("Показывать оси координат") {
             public void actionPerformed(ActionEvent event) {
@@ -85,7 +95,6 @@ public class MainFrame extends JFrame {
                 display.setShowAxis(showAxisMenuItem.isSelected());
             }
         };
-
         showAxisMenuItem = new JCheckBoxMenuItem(showAxisAction);
         // Добавить соответствующий элемент в меню
         graphicsMenu.add(showAxisMenuItem);
@@ -184,6 +193,8 @@ public class MainFrame extends JFrame {
             // Доступность или недоступность элементов меню "График" определяется загруженностью данных
             showAxisMenuItem.setEnabled(fileLoaded);
             showMarkersMenuItem.setEnabled(fileLoaded);
+            rotateOnOrOff.setEnabled(fileLoaded);
+            addSecondGraphicsMenuItem.setEnabled(fileLoaded);
         }
 
         // Обработчик, вызываемый после того, как меню исчезло с экрана
